@@ -1,0 +1,13 @@
+colorthief==0.2.1
+dj-rest-auth==7.2.0
+Django==6.0.3
+django-allauth==65.16.1
+django-cors-headers==4.9.0
+djangorestframework==3.17.0
+djangorestframework_simplejwt==5.5.1
+ImageHash==4.3.2
+numpy==2.4.3
+pillow==12.1.1
+python-dotenv==1.2.2
+rembg==2.0.73
+tensorflow==2.21.0

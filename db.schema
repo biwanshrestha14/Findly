@@ -1,0 +1,51 @@
+-- Database Schema for Smart Lost and Found System
+
+-- Table: auth_user
+CREATE TABLE IF NOT EXISTS "auth_user" (
+    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "password" varchar(128) NOT NULL,
+    "last_login" datetime NULL,
+    "is_superuser" bool NOT NULL,
+    "username" varchar(150) NOT NULL UNIQUE,
+    "first_name" varchar(150) NOT NULL,
+    "last_name" varchar(150) NOT NULL,
+    "email" varchar(254) NOT NULL,
+    "is_staff" bool NOT NULL,
+    "is_active" bool NOT NULL,
+    "date_joined" datetime NOT NULL
+);
+
+-- Table: items_item
+CREATE TABLE IF NOT EXISTS "items_item" (
+    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "category" varchar(20) NOT NULL,
+    "item_type" varchar(10) NOT NULL,
+    "title" varchar(100) NOT NULL,
+    "description" text NOT NULL,
+    "sub_category" varchar(100) NULL,
+    "image" varchar(100) NOT NULL,
+    "image_hash" varchar(255) NULL,
+    "color_vector" json NULL,
+    "labels" json NULL,
+    "latitude" decimal NULL,
+    "longitude" decimal NULL,
+    "secret_question" text NOT NULL,
+    "secret_answer" text NOT NULL,
+    "status" varchar(10) NOT NULL,
+    "user_id" integer NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED
+);
+
+-- Table: items_match
+CREATE TABLE IF NOT EXISTS "items_match" (
+    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "score" real NOT NULL,
+    "color_score" real NOT NULL,
+    "label_score" real NOT NULL,
+    "location_score" real NOT NULL,
+    "text_score" real NOT NULL,
+    "status" varchar(10) NOT NULL,
+    "created_at" datetime NOT NULL,
+    "item_id" integer NOT NULL REFERENCES "items_item" ("id") DEFERRABLE INITIALLY DEFERRED,
+    "matched_item_id" integer NOT NULL REFERENCES "items_item" ("id") DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT "items_match_item_id_matched_item_id_uniq" UNIQUE ("item_id", "matched_item_id")
+);
