@@ -21,6 +21,7 @@ export default function AuthScreen({ navigation }: any) {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
 
     // ── Google Sign-In (backend-driven, no Expo proxy needed) ────────────────
@@ -187,14 +188,22 @@ export default function AuthScreen({ navigation }: any) {
                         />
                     )}
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        placeholderTextColor="#a4b0be"
-                    />
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            style={styles.passwordInput}
+                            placeholder="Password"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry={!showPassword}
+                            placeholderTextColor="#a4b0be"
+                        />
+                        <TouchableOpacity
+                            style={styles.eyeButton}
+                            onPress={() => setShowPassword(!showPassword)}
+                        >
+                            <Text style={styles.eyeText}>{showPassword ? '🙈' : '👁'}</Text>
+                        </TouchableOpacity>
+                    </View>
 
                     <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
                         <Text style={styles.submitText}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
@@ -269,6 +278,30 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff', padding: 18, borderRadius: 15,
         marginBottom: 15, fontSize: 16, color: '#2f3640',
         borderWidth: 1, borderColor: '#dcdde1',
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#dcdde1',
+    },
+    passwordInput: {
+        flex: 1,
+        padding: 18,
+        fontSize: 16,
+        color: '#2f3640',
+    },
+    eyeButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    eyeText: {
+        fontSize: 22,
     },
     submitBtn: {
         backgroundColor: '#3498db', padding: 18, borderRadius: 15,

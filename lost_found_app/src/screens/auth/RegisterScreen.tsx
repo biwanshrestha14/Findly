@@ -6,6 +6,7 @@ export default function RegisterScreen({ navigation }: any) {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleRegister = async () => {
         try {
@@ -22,7 +23,18 @@ export default function RegisterScreen({ navigation }: any) {
             <Text style={styles.title}>Create Account</Text>
             <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} autoCapitalize="none" />
             <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-            <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+            <View style={styles.passwordContainer}>
+                <TextInput
+                    style={styles.passwordInput}
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword(!showPassword)}>
+                    <Text style={styles.eyeText}>{showPassword ? '🙈' : '👁'}</Text>
+                </TouchableOpacity>
+            </View>
             <TouchableOpacity style={styles.button} onPress={handleRegister}>
                 <Text style={styles.buttonText}>Register</Text>
             </TouchableOpacity>
@@ -37,6 +49,28 @@ const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f5f6fa' },
     title: { fontSize: 28, fontWeight: 'bold', marginBottom: 30, textAlign: 'center', color: '#2f3640' },
     input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#dcdde1' },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#dcdde1',
+    },
+    passwordInput: {
+        flex: 1,
+        padding: 15,
+    },
+    eyeButton: {
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    eyeText: {
+        fontSize: 20,
+    },
     button: { backgroundColor: '#e74c3c', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
     buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
     link: { marginTop: 20, textAlign: 'center', color: '#e74c3c', fontWeight: '500' }

@@ -1,9 +1,12 @@
 {
   "expo": {
     "name": "lost_found_app",
-    "slug": "lost_found_app",
+    "slug": "findly",
     "owner": "beewan",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "scheme": "lostfoundapp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -28,6 +31,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f962d7ec-7161-4f3e-b1eb-a5485dfdaeb1"
+      }
     }
   }
 }
