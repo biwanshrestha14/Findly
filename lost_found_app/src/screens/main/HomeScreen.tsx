@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Image, Modal, Pressable, Alert } from 'react-native';
 import api, { getNotifications, getMyClaims, MEDIA_BASE } from '../../api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const COLORS = {
     primary: '#0F6E56', primaryLight: '#E1F5EE',
@@ -28,13 +30,13 @@ export default function HomeScreen({ navigation }: any) {
     const [showElectronicsPicker, setShowElectronicsPicker] = useState(false);
 
     const ELECTRONIC_TYPES = [
-        { key: 'mobile_phone', label: 'Mobile Phone', icon: '📱' },
-        { key: 'laptop', label: 'Laptop', icon: '💻' },
-        { key: 'tablet', label: 'Tablet', icon: '📟' },
-        { key: 'earbuds', label: 'Earbuds', icon: '🎧' },
-        { key: 'smartwatch', label: 'Smartwatch', icon: '⌚' },
-        { key: 'camera', label: 'Camera', icon: '📷' },
-        { key: 'accessories', label: 'Accessories', icon: '🔌' },
+        { key: 'mobile_phone', label: 'Mobile Phone', icon: 'phone-portrait-outline', color: '#0F6E56' },
+        { key: 'laptop', label: 'Laptop', icon: 'laptop-outline', color: '#3498db' },
+        { key: 'tablet', label: 'Tablet', icon: 'tablet-portrait-outline', color: '#9b59b6' },
+        { key: 'earbuds', label: 'Earbuds', icon: 'headset-outline', color: '#e67e22' },
+        { key: 'smartwatch', label: 'Smartwatch', icon: 'watch-outline', color: '#e74c3c' },
+        { key: 'camera', label: 'Camera', icon: 'camera-outline', color: '#1abc9c' },
+        { key: 'accessories', label: 'Accessories', icon: 'extension-puzzle-outline', color: '#7f8fa6' },
     ];
 
     const handleElectronicSelect = (eType: string) => {
@@ -113,7 +115,7 @@ export default function HomeScreen({ navigation }: any) {
             </View>
             <View style={styles.headerActions}>
                 <TouchableOpacity style={styles.bellBtn} onPress={() => navigation.navigate('Notifications')}>
-                    <Text style={styles.bellIcon}>🔔</Text>
+                    <Ionicons name="notifications-outline" size={24} color="#2f3640" />
                     {unreadCount > 0 && (
                         <View style={styles.notifBadge}>
                             <Text style={styles.notifBadgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
@@ -231,13 +233,22 @@ export default function HomeScreen({ navigation }: any) {
             <Modal transparent visible={showElectronicsPicker} animationType="slide" onRequestClose={() => setShowElectronicsPicker(false)}>
                 <Pressable style={styles.modalOverlay} onPress={() => setShowElectronicsPicker(false)}>
                     <View style={styles.modalSheet}>
+                        <View style={styles.modalHeaderIndicator} />
                         <Text style={styles.modalTitle}>Select Electronic Type</Text>
-                        {ELECTRONIC_TYPES.map(et => (
-                            <TouchableOpacity key={et.key} style={styles.modalOption} onPress={() => handleElectronicSelect(et.key)}>
-                                <Text style={styles.modalOptionIcon}>{et.icon}</Text>
-                                <Text style={styles.modalOptionText}>{et.label}</Text>
-                            </TouchableOpacity>
-                        ))}
+                        <Text style={styles.modalSubTitle}>Choose the category that matches your device</Text>
+                        
+                        <View style={styles.optionsContainer}>
+                            {ELECTRONIC_TYPES.map(et => (
+                                <TouchableOpacity key={et.key} style={styles.modalOption} onPress={() => handleElectronicSelect(et.key)}>
+                                    <View style={[styles.iconWrapper, { backgroundColor: et.color + '15' }]}>
+                                        <Ionicons name={et.icon as any} size={22} color={et.color} />
+                                    </View>
+                                    <Text style={styles.modalOptionText}>{et.label}</Text>
+                                    <Ionicons name="chevron-forward" size={18} color="#bdc3c7" style={{ marginLeft: 'auto' }} />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                        
                         <TouchableOpacity style={styles.modalCancel} onPress={() => setShowElectronicsPicker(false)}>
                             <Text style={styles.modalCancelText}>Cancel</Text>
                         </TouchableOpacity>
@@ -257,7 +268,9 @@ export default function HomeScreen({ navigation }: any) {
                     { cancelable: true }
                 );
             }}>
-                <Text style={styles.fabText}>+</Text>
+                <LinearGradient colors={['#0F6E56', '#128C7E']} style={styles.fabGradient}>
+                    <Ionicons name="add" size={32} color="#fff" />
+                </LinearGradient>
             </TouchableOpacity>
         </View>
     );
@@ -293,20 +306,23 @@ const styles = StyleSheet.create({
     claimLabel: { color: COLORS.amber, fontSize: 12, fontWeight: '600' },
     claimStatusBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
     claimStatusText: { fontSize: 12, fontWeight: '600' },
-    fab: { position: 'absolute', bottom: 25, right: 25, width: 60, height: 60, borderRadius: 30, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center', elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 3 },
-    fabText: { fontSize: 30, color: '#fff', fontWeight: 'bold' },
+    fab: { position: 'absolute', bottom: 25, right: 25, width: 60, height: 60, borderRadius: 30, overflow: 'hidden', elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 3 },
+    fabGradient: { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
     emptyText: { textAlign: 'center', marginTop: 50, color: '#7f8fa6', fontSize: 16 },
     actionRow: { flexDirection: 'row', justifyContent: 'flex-start', marginTop: 15, borderTopWidth: 1, borderColor: '#f1f2f6', paddingTop: 10, gap: 10 },
     editBtn: { backgroundColor: '#f39c12', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 5 },
     deleteBtn: { backgroundColor: '#e74c3c', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 5 },
     actionText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
     // Electronics picker modal
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalSheet: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 40 },
-    modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#2f3640', textAlign: 'center', marginBottom: 15 },
-    modalOption: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 10, borderBottomWidth: 1, borderColor: '#f1f2f6' },
-    modalOptionIcon: { fontSize: 24, marginRight: 15 },
-    modalOptionText: { fontSize: 16, color: '#2f3640', fontWeight: '500' },
-    modalCancel: { marginTop: 15, padding: 14, borderRadius: 10, backgroundColor: '#f1f2f6', alignItems: 'center' },
-    modalCancelText: { fontSize: 16, color: '#7f8fa6', fontWeight: 'bold' },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    modalSheet: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
+    modalHeaderIndicator: { width: 40, height: 5, backgroundColor: '#e5e5e0', borderRadius: 3, alignSelf: 'center', marginBottom: 15 },
+    modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#1A1A1A', textAlign: 'center' },
+    modalSubTitle: { fontSize: 14, color: '#6B6B6B', textAlign: 'center', marginTop: 4, marginBottom: 20 },
+    optionsContainer: { backgroundColor: '#F8F7F2', borderRadius: 16, padding: 8, borderOpacity: 0.1, borderWidth: 1, borderColor: '#E5E5E0' },
+    modalOption: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderColor: '#E5E5E080' },
+    iconWrapper: { width: 38, height: 38, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+    modalOptionText: { fontSize: 16, color: '#1A1A1A', fontWeight: '600' },
+    modalCancel: { marginTop: 20, padding: 15, borderRadius: 14, backgroundColor: '#F0F0ED', alignItems: 'center' },
+    modalCancelText: { fontSize: 16, color: '#6B6B6B', fontWeight: 'bold' },
 });

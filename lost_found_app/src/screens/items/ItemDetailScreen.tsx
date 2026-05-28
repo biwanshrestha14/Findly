@@ -3,6 +3,7 @@ import {
     View, Text, StyleSheet, Image, ScrollView, TouchableOpacity,
     Alert, FlatList, ActivityIndicator, Modal, Pressable,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView, { Marker } from 'react-native-maps';
 import api, { getKYCStatus, getMyClaims } from '../../api';
@@ -138,10 +139,22 @@ export default function ItemDetailScreen({ route, navigation }: any) {
                 {matchResult && (
                     <View style={styles.breakdownCard}>
                         <Text style={styles.sectionTitle}>Match Confidence: {(matchResult.score * 100).toFixed(0)}%</Text>
-                        <Text style={styles.scoreLine}>🎨 Color: {(matchResult.color_score * 100).toFixed(0)}%</Text>
-                        <Text style={styles.scoreLine}>🏷️ Label: {(matchResult.label_score * 100).toFixed(0)}%</Text>
-                        <Text style={styles.scoreLine}>📍 Location: {(matchResult.location_score * 100).toFixed(0)}%</Text>
-                        <Text style={styles.scoreLine}>📝 Text: {(matchResult.text_score * 100).toFixed(0)}%</Text>
+                        <View style={styles.scoreLineRow}>
+                            <Ionicons name="color-palette-outline" size={16} color={COLORS.primary} style={{ marginRight: 8 }} />
+                            <Text style={styles.scoreLine}>Color Match: {(matchResult.color_score * 100).toFixed(0)}%</Text>
+                        </View>
+                        <View style={styles.scoreLineRow}>
+                            <Ionicons name="pricetag-outline" size={16} color={COLORS.primary} style={{ marginRight: 8 }} />
+                            <Text style={styles.scoreLine}>Label Match: {(matchResult.label_score * 100).toFixed(0)}%</Text>
+                        </View>
+                        <View style={styles.scoreLineRow}>
+                            <Ionicons name="location-outline" size={16} color={COLORS.primary} style={{ marginRight: 8 }} />
+                            <Text style={styles.scoreLine}>Location Match: {(matchResult.location_score * 100).toFixed(0)}%</Text>
+                        </View>
+                        <View style={styles.scoreLineRow}>
+                            <Ionicons name="document-text-outline" size={16} color={COLORS.primary} style={{ marginRight: 8 }} />
+                            <Text style={styles.scoreLine}>Text Match: {(matchResult.text_score * 100).toFixed(0)}%</Text>
+                        </View>
                     </View>
                 )}
 
@@ -151,14 +164,17 @@ export default function ItemDetailScreen({ route, navigation }: any) {
                         <Text style={styles.sectionTitle}>Verification Details</Text>
                         {item.has_verification_details ? (
                             <View style={styles.verifiedCard}>
-                                <Text style={styles.verifiedText}>✅ Verification details added</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Ionicons name="checkmark-circle" size={18} color={COLORS.primary} style={{ marginRight: 8 }} />
+                                    <Text style={styles.verifiedText}>Verification details added</Text>
+                                </View>
                                 <TouchableOpacity onPress={() => navigation.navigate('VerificationSetup', { itemId: item.id })}>
                                     <Text style={styles.editDetailsLink}>Edit Details</Text>
                                 </TouchableOpacity>
                             </View>
                         ) : (
                             <View style={styles.warningCard}>
-                                <Text style={styles.warningIcon}>⚠️</Text>
+                                <Ionicons name="warning-outline" size={32} color={COLORS.amber} style={{ marginBottom: 8 }} />
                                 <Text style={styles.warningText}>No verification details added. Add details to help verify ownership.</Text>
                                 <TouchableOpacity
                                     style={styles.addDetailsBtn}
@@ -214,9 +230,12 @@ export default function ItemDetailScreen({ route, navigation }: any) {
                         </TouchableOpacity>
                     ) : (
                         <TouchableOpacity style={styles.claimBtn} onPress={handleClaimPress}>
-                            <Text style={styles.claimText}>
-                                {kycStatus !== 'APPROVED' ? '🪪 Verify Identity First' : 'Claim This Item'}
-                            </Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                {kycStatus !== 'APPROVED' && <Ionicons name="card-outline" size={22} color="#fff" style={{ marginRight: 8 }} />}
+                                <Text style={styles.claimText}>
+                                    {kycStatus !== 'APPROVED' ? 'Verify Identity First' : 'Claim This Item'}
+                                </Text>
+                            </View>
                         </TouchableOpacity>
                     )
                 )}
@@ -261,7 +280,8 @@ const styles = StyleSheet.create({
     matchScore: { fontSize: 12, color: COLORS.primary, fontWeight: 'bold' },
     claimBadge: { fontSize: 11, color: COLORS.amber, fontWeight: '600', marginTop: 4 },
     breakdownCard: { backgroundColor: '#f5f6fa', padding: 15, borderRadius: 10, marginTop: 20, borderWidth: 1, borderColor: '#dcdde1' },
-    scoreLine: { fontSize: 15, color: '#444', marginVertical: 4, fontWeight: '500' },
+    scoreLineRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 4 },
+    scoreLine: { fontSize: 15, color: '#444', fontWeight: '500' },
     ownerActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 },
     editBtn: { flex: 1, backgroundColor: '#f39c12', padding: 15, borderRadius: 10, alignItems: 'center', marginRight: 10 },
     deleteBtn: { flex: 1, backgroundColor: '#e74c3c', padding: 15, borderRadius: 10, alignItems: 'center', marginLeft: 10 },

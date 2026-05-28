@@ -16,6 +16,7 @@ import VerificationSetupScreen from './src/screens/admin/VerificationSetupScreen
 import ClaimVerificationScreen from './src/screens/claims/ClaimVerificationScreen';
 import ClaimStatusScreen from './src/screens/claims/ClaimStatusScreen';
 import AdminScreen from './src/screens/admin/AdminScreen';
+import SplashLoading from './src/screens/SplashLoading';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,13 +25,17 @@ export default function App() {
 
   useEffect(() => {
     const checkToken = async () => {
-      const token = await AsyncStorage.getItem('access_token');
+      // Simulate token verification delay for a smooth entry/splash experience
+      const [token] = await Promise.all([
+        AsyncStorage.getItem('access_token'),
+        new Promise(resolve => setTimeout(resolve, 1500))
+      ]);
       setInitialRoute(token ? 'Home' : 'Auth');
     };
     checkToken();
   }, []);
 
-  if (!initialRoute) return null;
+  if (!initialRoute) return <SplashLoading />;
 
   return (
     <NavigationContainer>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Image, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
@@ -153,7 +154,7 @@ export default function AddItemScreen({ route, navigation }: any) {
                 )}
                 {location && (
                     <View style={styles.fixedMarker} pointerEvents="none">
-                        <Text style={styles.markerEmoji}>📍</Text>
+                        <Ionicons name="location" size={36} color="#ef4444" />
                     </View>
                 )}
             </View>
@@ -193,6 +194,5 @@ const styles = StyleSheet.create({
     submitText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
     mapContainer: { height: 200, width: '100%', borderRadius: 10, overflow: 'hidden', marginBottom: 15, backgroundColor: '#e1e2e6' },
     map: { flex: 1 },
-    fixedMarker: { position: 'absolute', top: '50%', left: '50%', marginLeft: -15, marginTop: -35 },
-    markerEmoji: { fontSize: 30 },
+    fixedMarker: { position: 'absolute', top: '50%', left: '50%', marginLeft: -18, marginTop: -36 },
 });

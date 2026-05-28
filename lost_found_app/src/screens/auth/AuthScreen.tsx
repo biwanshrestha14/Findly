@@ -9,6 +9,7 @@ import {
     Text, TextInput, TouchableOpacity,
     View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { authApi, MEDIA_BASE } from '../../api';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -112,7 +113,7 @@ export default function AuthScreen({ navigation }: any) {
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.iconPlaceholder}>
-                    <Text style={styles.iconText}>🔍</Text>
+                    <Ionicons name="search-outline" size={40} color="#fff" />
                 </View>
                 <Text style={styles.appName}>Findly</Text>
                 <Text style={styles.tagline}>Smart Lost & Found</Text>
@@ -201,7 +202,7 @@ export default function AuthScreen({ navigation }: any) {
                             style={styles.eyeButton}
                             onPress={() => setShowPassword(!showPassword)}
                         >
-                            <Text style={styles.eyeText}>{showPassword ? '🙈' : '👁'}</Text>
+                            <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color="#a4b0be" />
                         </TouchableOpacity>
                     </View>
 

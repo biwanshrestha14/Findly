@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { authApi } from '../../api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -33,7 +34,7 @@ export default function LoginScreen({ navigation }: any) {
                     secureTextEntry={!showPassword}
                 />
                 <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword(!showPassword)}>
-                    <Text style={styles.eyeText}>{showPassword ? '🙈' : '👁'}</Text>
+                    <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color="#7f8fa6" />
                 </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
