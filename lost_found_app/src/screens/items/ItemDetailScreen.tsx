@@ -23,7 +23,6 @@ export default function ItemDetailScreen({ route, navigation }: any) {
     const [existingClaim, setExistingClaim] = useState<any>(null);
     const [kycStatus, setKycStatus] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-    const [showLabelInfo, setShowLabelInfo] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -114,54 +113,7 @@ export default function ItemDetailScreen({ route, navigation }: any) {
                 <Text style={styles.sectionTitle}>Description</Text>
                 <Text style={styles.descText}>{item.description}</Text>
 
-                {/* AI-Detected Labels */}
-                {item.label_scores && item.label_scores.length > 0 && (
-                    <View style={styles.labelSection}>
-                        <View style={styles.labelHeader}>
-                            <Text style={styles.sectionTitle}>AI-Detected Features</Text>
-                            <TouchableOpacity onPress={() => setShowLabelInfo(true)} style={styles.infoBtn}>
-                                <Text style={styles.infoBtnText}>ⓘ</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.labelScroll}>
-                            {item.label_scores
-                                .filter((ls: any) => ls.score >= 0.05)
-                                .sort((a: any, b: any) => b.score - a.score)
-                                .map((ls: any, idx: number) => {
-                                    const pct = Math.round(ls.score * 100);
-                                    const chipStyle =
-                                        ls.score >= 0.5 ? styles.chipHigh :
-                                        ls.score >= 0.2 ? styles.chipMedium :
-                                        styles.chipLow;
-                                    const textStyle =
-                                        ls.score >= 0.5 ? styles.chipTextHigh :
-                                        ls.score >= 0.2 ? styles.chipTextMedium :
-                                        styles.chipTextLow;
-                                    return (
-                                        <View key={idx} style={[styles.labelChip, chipStyle]}>
-                                            <Text style={[styles.chipLabel, textStyle]}>{ls.label}</Text>
-                                            <Text style={[styles.chipScore, textStyle]}>{pct}%</Text>
-                                        </View>
-                                    );
-                                })}
-                        </ScrollView>
-                        {/* Info tooltip modal */}
-                        <Modal transparent visible={showLabelInfo} animationType="fade" onRequestClose={() => setShowLabelInfo(false)}>
-                            <Pressable style={styles.tooltipOverlay} onPress={() => setShowLabelInfo(false)}>
-                                <View style={styles.tooltipCard}>
-                                    <Text style={styles.tooltipTitle}>About AI Labels</Text>
-                                    <Text style={styles.tooltipText}>
-                                        These labels were automatically extracted from the item photo using MobileNetV2
-                                        and are used to find matching items. Higher percentages mean higher confidence.
-                                    </Text>
-                                    <TouchableOpacity onPress={() => setShowLabelInfo(false)} style={styles.tooltipClose}>
-                                        <Text style={styles.tooltipCloseText}>Got it</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </Pressable>
-                        </Modal>
-                    </View>
-                )}
+
 
                 {item.latitude && item.longitude && (
                     <>
@@ -331,41 +283,5 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.primary, paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10,
     },
     addDetailsBtnText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
-    // AI Label section
-    labelSection: { marginTop: 10 },
-    labelHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
-    infoBtn: { padding: 4, marginLeft: 6 },
-    infoBtnText: { fontSize: 18, color: COLORS.textSec },
-    labelScroll: { marginTop: 6, marginBottom: 4 },
-    labelChip: {
-        flexDirection: 'row', alignItems: 'center',
-        paddingHorizontal: 12, paddingVertical: 7,
-        borderRadius: 20, marginRight: 8,
-    },
-    chipHigh: { backgroundColor: '#E1F5EE' },
-    chipMedium: { backgroundColor: COLORS.amberLight },
-    chipLow: { backgroundColor: '#F0F0ED' },
-    chipLabel: { fontSize: 13, fontWeight: '600', marginRight: 5 },
-    chipScore: { fontSize: 12, fontWeight: '500' },
-    chipTextHigh: { color: COLORS.primary },
-    chipTextMedium: { color: COLORS.amber },
-    chipTextLow: { color: COLORS.textSec },
-    // Tooltip modal
-    tooltipOverlay: {
-        flex: 1, backgroundColor: 'rgba(0,0,0,0.4)',
-        justifyContent: 'center', alignItems: 'center', padding: 30,
-    },
-    tooltipCard: {
-        backgroundColor: '#fff', borderRadius: 16, padding: 24,
-        width: '100%', maxWidth: 340,
-        shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 20,
-        shadowOffset: { width: 0, height: 4 }, elevation: 8,
-    },
-    tooltipTitle: { fontSize: 17, fontWeight: '700', color: COLORS.text, marginBottom: 10 },
-    tooltipText: { fontSize: 14, color: COLORS.textSec, lineHeight: 21 },
-    tooltipClose: {
-        marginTop: 18, backgroundColor: COLORS.primary,
-        paddingVertical: 10, borderRadius: 10, alignItems: 'center',
-    },
-    tooltipCloseText: { color: '#FFF', fontSize: 15, fontWeight: '600' },
+
 });

@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from encrypted_model_fields.fields import EncryptedCharField
 
 
 class Item(models.Model):
@@ -236,6 +237,112 @@ class MatchingConfiguration(models.Model):
 
     def __str__(self):
         return f"Weights: Color={self.color_weight}, Label={self.label_weight}, Loc={self.location_weight}, Text={self.text_weight} | Threshold={self.threshold}"
+
+
+class LostElectronic(Item):
+    ELECTRONIC_TYPE_CHOICES = [
+        ('mobile_phone', 'Mobile Phone'),
+        ('laptop', 'Laptop'),
+        ('tablet', 'Tablet'),
+        ('earbuds', 'Earbuds'),
+        ('smartwatch', 'Smartwatch'),
+        ('camera', 'Camera'),
+        ('accessories', 'Accessories'),
+    ]
+    OS_CHOICES = [
+        ('iOS', 'iOS'),
+        ('Android', 'Android'),
+    ]
+    CONDITION_CHOICES = [
+        ('good', 'Good'),
+        ('screen_cracked', 'Screen Cracked'),
+        ('damaged', 'Damaged'),
+    ]
+
+    electronic_type = models.CharField(max_length=50, choices=ELECTRONIC_TYPE_CHOICES, default='mobile_phone')
+    brand = models.CharField(max_length=100)
+    model_name = models.CharField(max_length=100)
+    color = models.CharField(max_length=50)
+    storage_capacity = models.CharField(max_length=20, null=True, blank=True)
+    os_type = models.CharField(max_length=20, choices=OS_CHOICES, null=True, blank=True)
+    imei_or_serial = EncryptedCharField(max_length=50, null=True, blank=True)
+    condition = models.CharField(max_length=20, choices=CONDITION_CHOICES)
+    lock_screen_message = models.CharField(max_length=255, null=True, blank=True)
+    reward_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.category = 'Electronics'
+        mapping = {
+            'mobile_phone': 'Mobile Phone',
+            'laptop': 'Laptop',
+            'tablet': 'Tablet',
+            'earbuds': 'Earbuds',
+            'smartwatch': 'Smartwatch',
+            'camera': 'Camera',
+            'accessories': 'Accessories',
+        }
+        self.sub_category = mapping.get(self.electronic_type, 'Electronics')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Lost {self.get_electronic_type_display()}: {self.brand} {self.model_name} ({self.color})"
+
+
+class FoundElectronic(Item):
+    ELECTRONIC_TYPE_CHOICES = [
+        ('mobile_phone', 'Mobile Phone'),
+        ('laptop', 'Laptop'),
+        ('tablet', 'Tablet'),
+        ('earbuds', 'Earbuds'),
+        ('smartwatch', 'Smartwatch'),
+        ('camera', 'Camera'),
+        ('accessories', 'Accessories'),
+    ]
+    OS_CHOICES = [
+        ('iOS', 'iOS'),
+        ('Android', 'Android'),
+    ]
+    CONDITION_CHOICES = [
+        ('good', 'Good'),
+        ('screen_cracked', 'Screen Cracked'),
+        ('damaged', 'Damaged'),
+    ]
+    IMEI_SOURCE_CHOICES = [
+        ('emergency_dialer', 'Emergency Dialer'),
+        ('sim_tray', 'SIM Tray'),
+        ('back_of_phone', 'Back of Phone'),
+        ('not_found', 'Not Found'),
+    ]
+
+    electronic_type = models.CharField(max_length=50, choices=ELECTRONIC_TYPE_CHOICES, default='mobile_phone')
+    brand = models.CharField(max_length=100)
+    model_name = models.CharField(max_length=100)
+    color = models.CharField(max_length=50)
+    os_type = models.CharField(max_length=20, choices=OS_CHOICES, null=True, blank=True)
+    imei_or_serial = EncryptedCharField(max_length=50, null=True, blank=True)
+    imei_or_serial_source = models.CharField(max_length=30, choices=IMEI_SOURCE_CHOICES, default='not_found')
+    is_device_locked = models.BooleanField(default=True)
+    lock_screen_message = models.CharField(max_length=255, null=True, blank=True)
+    is_factory_reset = models.BooleanField(default=False)
+    is_suspicious = models.BooleanField(default=False)
+    condition = models.CharField(max_length=20, choices=CONDITION_CHOICES)
+
+    def save(self, *args, **kwargs):
+        self.category = 'Electronics'
+        mapping = {
+            'mobile_phone': 'Mobile Phone',
+            'laptop': 'Laptop',
+            'tablet': 'Tablet',
+            'earbuds': 'Earbuds',
+            'smartwatch': 'Smartwatch',
+            'camera': 'Camera',
+            'accessories': 'Accessories',
+        }
+        self.sub_category = mapping.get(self.electronic_type, 'Electronics')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Found {self.get_electronic_type_display()}: {self.brand} {self.model_name} ({self.color})"
 
 
 # ── Signal: auto-create UserProfile when a new User is created ────────────────

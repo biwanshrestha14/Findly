@@ -27,6 +27,7 @@ load_dotenv(BASE_DIR / '.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-vkp6jq9au_777&gmgg+z3b@@i)&0_n8q0$dce%u#k-22+@_hx6')
+FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY', 'TnfvSGd06j2lnHKm_sgmwI43_i9V6Jin8_J5Nap-AEI=')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'items',
+    'encrypted_model_fields',
     'django.contrib.sites',  # Required for django-allauth
     'allauth',
     'allauth.account',

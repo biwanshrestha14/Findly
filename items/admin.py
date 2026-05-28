@@ -5,6 +5,7 @@ from unfold.admin import ModelAdmin, TabularInline
 from .models import (
     Item, Match, Notification, KYCSubmission, UserProfile,
     ItemVerificationDetail, ClaimRequest, ClaimAnswer, MatchingConfiguration,
+    LostElectronic, FoundElectronic,
 )
 
 
@@ -236,3 +237,39 @@ class MatchingConfigurationAdmin(ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(LostElectronic)
+class LostElectronicAdmin(ModelAdmin):
+    list_display = ('title', 'electronic_type', 'brand', 'model_name', 'color', 'os_type', 'user', 'created_at')
+    list_filter = ('electronic_type', 'brand', 'os_type', 'condition')
+    search_fields = ('brand', 'model_name', 'color', 'lock_screen_message', 'title')
+    list_per_page = 25
+
+
+@admin.register(FoundElectronic)
+class FoundElectronicAdmin(ModelAdmin):
+    list_display = ('title', 'electronic_type', 'brand', 'model_name', 'color', 'os_type', 'is_device_locked', 'factory_reset_alert', 'is_suspicious', 'created_at')
+    list_filter = ('electronic_type', 'brand', 'os_type', 'is_device_locked', 'is_factory_reset', 'is_suspicious')
+    search_fields = ('brand', 'model_name', 'color', 'lock_screen_message', 'title')
+    list_per_page = 25
+    readonly_fields = ('factory_reset_alert_detail',)
+
+    def factory_reset_alert(self, obj):
+        if obj.is_factory_reset:
+            return format_html('<span style="color: #ef4444; font-weight: bold; background-color: #fee2e2; padding: 2px 6px; border-radius: 4px;">⚠️ Reset Alert</span>')
+        return 'No'
+    factory_reset_alert.short_description = 'Reset Status'
+
+    def factory_reset_alert_detail(self, obj):
+        if obj.is_factory_reset:
+            return format_html('<div style="color: #ef4444; font-weight: bold; background-color: #fee2e2; border: 1px solid #fca5a5; padding: 10px; border-radius: 6px; margin-bottom: 15px;">⚠️ WARNING: This device has been reported as factory reset by the finder. This is highly suspicious for a lost electronic device!</div>')
+        return 'Device has not been factory reset.'
+    factory_reset_alert_detail.short_description = 'Factory Reset Warning'
+
+    fieldsets = (
+        ('Basic Info', {'fields': ('user', 'title', 'description', 'image', 'status')}),
+        ('Electronic Specs', {'fields': ('electronic_type', 'brand', 'model_name', 'color', 'os_type', 'imei_or_serial', 'imei_or_serial_source')}),
+        ('Device State', {'fields': ('is_device_locked', 'lock_screen_message', 'condition')}),
+        ('Admin Checks', {'fields': ('is_factory_reset', 'is_suspicious', 'factory_reset_alert_detail')}),
+    )

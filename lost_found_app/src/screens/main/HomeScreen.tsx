@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Image, Modal, Pressable, Alert } from 'react-native';
 import api, { getNotifications, getMyClaims, MEDIA_BASE } from '../../api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -25,6 +25,26 @@ export default function HomeScreen({ navigation }: any) {
     const [activeTab, setActiveTab] = useState<'reports' | 'matches' | 'claims'>('reports');
     const [currentUsername, setCurrentUsername] = useState('');
     const [unreadCount, setUnreadCount] = useState(0);
+    const [showElectronicsPicker, setShowElectronicsPicker] = useState(false);
+
+    const ELECTRONIC_TYPES = [
+        { key: 'mobile_phone', label: 'Mobile Phone', icon: '📱' },
+        { key: 'laptop', label: 'Laptop', icon: '💻' },
+        { key: 'tablet', label: 'Tablet', icon: '📟' },
+        { key: 'earbuds', label: 'Earbuds', icon: '🎧' },
+        { key: 'smartwatch', label: 'Smartwatch', icon: '⌚' },
+        { key: 'camera', label: 'Camera', icon: '📷' },
+        { key: 'accessories', label: 'Accessories', icon: '🔌' },
+    ];
+
+    const handleElectronicSelect = (eType: string) => {
+        setShowElectronicsPicker(false);
+        Alert.alert('Lost or Found?', 'Is this a lost or found report?', [
+            { text: 'I Lost It', onPress: () => navigation.navigate('AddElectronic', { electronicType: eType, type: 'LOST' }) },
+            { text: 'I Found It', onPress: () => navigation.navigate('AddElectronic', { electronicType: eType, type: 'FOUND' }) },
+            { text: 'Cancel', style: 'cancel' },
+        ], { cancelable: true });
+    };
 
     const handleDelete = (id: number) => {
         import('react-native').then(({ Alert }) => {
@@ -207,7 +227,36 @@ export default function HomeScreen({ navigation }: any) {
                     ListEmptyComponent={<Text style={styles.emptyText}>No {activeTab} found.</Text>}
                 />
             )}
-            <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('AddItem')}>
+            {/* Electronics Picker Modal */}
+            <Modal transparent visible={showElectronicsPicker} animationType="slide" onRequestClose={() => setShowElectronicsPicker(false)}>
+                <Pressable style={styles.modalOverlay} onPress={() => setShowElectronicsPicker(false)}>
+                    <View style={styles.modalSheet}>
+                        <Text style={styles.modalTitle}>Select Electronic Type</Text>
+                        {ELECTRONIC_TYPES.map(et => (
+                            <TouchableOpacity key={et.key} style={styles.modalOption} onPress={() => handleElectronicSelect(et.key)}>
+                                <Text style={styles.modalOptionIcon}>{et.icon}</Text>
+                                <Text style={styles.modalOptionText}>{et.label}</Text>
+                            </TouchableOpacity>
+                        ))}
+                        <TouchableOpacity style={styles.modalCancel} onPress={() => setShowElectronicsPicker(false)}>
+                            <Text style={styles.modalCancelText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Pressable>
+            </Modal>
+
+            <TouchableOpacity style={styles.fab} onPress={() => {
+                Alert.alert(
+                    'Report Lost or Found',
+                    'What type of item?',
+                    [
+                        { text: 'General Item', onPress: () => navigation.navigate('AddItem') },
+                        { text: 'Electronics', onPress: () => setShowElectronicsPicker(true) },
+                        { text: 'Cancel', style: 'cancel' },
+                    ],
+                    { cancelable: true }
+                );
+            }}>
                 <Text style={styles.fabText}>+</Text>
             </TouchableOpacity>
         </View>
@@ -251,4 +300,13 @@ const styles = StyleSheet.create({
     editBtn: { backgroundColor: '#f39c12', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 5 },
     deleteBtn: { backgroundColor: '#e74c3c', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 5 },
     actionText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
+    // Electronics picker modal
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    modalSheet: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 40 },
+    modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#2f3640', textAlign: 'center', marginBottom: 15 },
+    modalOption: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 10, borderBottomWidth: 1, borderColor: '#f1f2f6' },
+    modalOptionIcon: { fontSize: 24, marginRight: 15 },
+    modalOptionText: { fontSize: 16, color: '#2f3640', fontWeight: '500' },
+    modalCancel: { marginTop: 15, padding: 14, borderRadius: 10, backgroundColor: '#f1f2f6', alignItems: 'center' },
+    modalCancelText: { fontSize: 16, color: '#7f8fa6', fontWeight: 'bold' },
 });

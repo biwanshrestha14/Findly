@@ -125,4 +125,29 @@ export const adminReviewClaim = async (id: number, status: string, adminNotes: s
     return res.data;
 };
 
+// ── Electronics API ──────────────────────────────────────────────────────────
+
+export const createLostElectronic = async (formData: FormData) => {
+    const token = await AsyncStorage.getItem('access_token');
+    const response = await fetch(`${API_HOST}/api/electronics/lost/`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to report lost electronic');
+    return response.json();
+};
+
+export const createFoundElectronic = async (formData: FormData) => {
+    const token = await AsyncStorage.getItem('access_token');
+    const response = await fetch(`${API_HOST}/api/electronics/found/`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to report found electronic');
+    return response.json();
+};
+
 export default api;
+

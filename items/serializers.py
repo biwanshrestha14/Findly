@@ -8,6 +8,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import (
     Item, Match, Notification, KYCSubmission, UserProfile,
     ItemVerificationDetail, ClaimRequest, ClaimAnswer,
+    LostElectronic, FoundElectronic,
 )
 
 
@@ -213,3 +214,75 @@ class AdminClaimSerializer(serializers.ModelSerializer):
             return KYCAdminSerializer(found_item.user.kyc).data
         except KYCSubmission.DoesNotExist:
             return None
+
+
+# ── Phone Serializers ─────────────────────────────────────────────────────────
+
+# ── Electronic Serializers ───────────────────────────────────────────────────
+
+class LostElectronicSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    imei_or_serial_masked = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LostElectronic
+        fields = (
+            'id', 'user', 'title', 'description', 'image', 'item_type',
+            'category', 'sub_category', 'latitude', 'longitude', 'status',
+            'electronic_type', 'brand', 'model_name', 'color', 'storage_capacity', 'os_type',
+            'imei_or_serial', 'condition', 'lock_screen_message', 'reward_amount',
+            'image_hash', 'color_vector', 'labels', 'label_scores',
+            'created_at', 'imei_or_serial_masked',
+        )
+        read_only_fields = (
+            'user', 'image_hash', 'color_vector', 'labels', 'label_scores',
+            'category', 'sub_category', 'item_type', 'imei_or_serial_masked',
+        )
+        extra_kwargs = {
+            'imei_or_serial': {'write_only': True, 'required': False},
+        }
+
+    def get_imei_or_serial_masked(self, obj):
+        if obj.imei_or_serial:
+            return f"***********{obj.imei_or_serial[-4:]}"
+        return None
+
+    def create(self, validated_data):
+        validated_data['item_type'] = 'LOST'
+        return super().create(validated_data)
+
+
+class FoundElectronicSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    imei_or_serial_masked = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FoundElectronic
+        fields = (
+            'id', 'user', 'title', 'description', 'image', 'item_type',
+            'category', 'sub_category', 'latitude', 'longitude', 'status',
+            'electronic_type', 'brand', 'model_name', 'color', 'os_type',
+            'imei_or_serial', 'imei_or_serial_source', 'is_device_locked', 'lock_screen_message',
+            'is_factory_reset', 'is_suspicious', 'condition',
+            'image_hash', 'color_vector', 'labels', 'label_scores',
+            'created_at', 'imei_or_serial_masked',
+        )
+        read_only_fields = (
+            'user', 'image_hash', 'color_vector', 'labels', 'label_scores',
+            'category', 'sub_category', 'item_type', 'imei_or_serial_masked',
+        )
+        extra_kwargs = {
+            'imei_or_serial': {'write_only': True, 'required': False},
+            'is_suspicious': {'required': False},
+        }
+
+    def get_imei_or_serial_masked(self, obj):
+        if obj.imei_or_serial:
+            return f"***********{obj.imei_or_serial[-4:]}"
+        return None
+
+    def create(self, validated_data):
+        validated_data['item_type'] = 'FOUND'
+        return super().create(validated_data)
+
+

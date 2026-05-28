@@ -272,3 +272,111 @@ def find_matches(new_item):
             print(f"-> Notification sent to {new_item.user.username} regarding item '{new_item.title}'")
             print(f"-> Notification sent to {cand.user.username} regarding item '{cand.title}'")
             print("="*50)
+
+
+# ── Electronic-specific matching ──────────────────────────────────────────────
+
+def compute_electronic_match_score(lost_el, found_el):
+    """
+    Compute match score specifically for LostElectronic vs FoundElectronic.
+
+    Priority logic:
+      1. Both have imei_or_serial → exact match returns 0.99, mismatch returns 0.0
+      2. One has imei_or_serial   → run AI pipeline with 0.85 confidence penalty
+      3. Neither has imei_or_serial → run full AI pipeline unchanged
+    """
+    from items.models import LostElectronic, FoundElectronic
+
+    # Ensure electronic_type is matching
+    if lost_el.electronic_type != found_el.electronic_type:
+        return 0.0, 0.0, 0.0, 0.0, 0.0, 'ai'
+
+    lost_id = getattr(lost_el, 'imei_or_serial', None) or None
+    found_id = getattr(found_el, 'imei_or_serial', None) or None
+
+    match_type = 'ai'  # default
+
+    # Case 1: Both have Identifier (IMEI or Serial Number)
+    if lost_id and found_id:
+        if str(lost_id).strip() == str(found_id).strip():
+            match_type = 'identifier'
+            return 0.99, 1.0, 1.0, 1.0, 1.0, match_type
+        else:
+            # Identifier mismatch — definitely not the same device
+            return 0.0, 0.0, 0.0, 0.0, 0.0, match_type
+
+    # For AI-based matching, use the parent Item's compute_match_score
+    score_data = compute_match_score(lost_el.item_ptr, found_el.item_ptr)
+    if not isinstance(score_data, tuple):
+        return 0.0, 0.0, 0.0, 0.0, 0.0, match_type
+
+    score, c_score, l_score, loc_score, t_score = score_data
+
+    # Case 2: One side has Identifier → apply 0.85 confidence penalty
+    if lost_id or found_id:
+        score = score * 0.85
+
+    # Case 3: Neither has Identifier → full AI score (no penalty)
+    return score, c_score, l_score, loc_score, t_score, match_type
+
+
+def find_electronic_matches(new_electronic):
+    """
+    Find and store matches for a newly created LostElectronic or FoundElectronic.
+    Uses Identifier-first matching logic before falling back to the AI pipeline.
+    """
+    from items.models import LostElectronic, FoundElectronic, Match, Notification, MatchingConfiguration
+
+    config = MatchingConfiguration.get_config()
+
+    if isinstance(new_electronic, LostElectronic):
+        candidates = FoundElectronic.objects.filter(status='ACTIVE', electronic_type=new_electronic.electronic_type)
+    elif isinstance(new_electronic, FoundElectronic):
+        candidates = LostElectronic.objects.filter(status='ACTIVE', electronic_type=new_electronic.electronic_type)
+    else:
+        return
+
+    for cand in candidates:
+        if isinstance(new_electronic, LostElectronic):
+            lost, found = new_electronic, cand
+        else:
+            lost, found = cand, new_electronic
+
+        result = compute_electronic_match_score(lost, found)
+        score, c_score, l_score, loc_score, t_score, match_type = result
+
+        if score >= config.threshold or match_type == 'identifier':
+            match1 = Match.objects.create(
+                item=new_electronic.item_ptr, matched_item=cand.item_ptr,
+                score=score, color_score=c_score, label_score=l_score,
+                location_score=loc_score, text_score=t_score,
+            )
+            match2 = Match.objects.create(
+                item=cand.item_ptr, matched_item=new_electronic.item_ptr,
+                score=score, color_score=c_score, label_score=l_score,
+                location_score=loc_score, text_score=t_score,
+            )
+
+            confidence = int(score * 100)
+            el_display = new_electronic.get_electronic_type_display().lower()
+            if match_type == 'identifier':
+                msg_suffix = f'🔍 Exact Device Match (Identifier verified)'
+            else:
+                msg_suffix = f'{confidence}% confidence'
+
+            Notification.objects.create(
+                user=new_electronic.user, match=match1,
+                message=f'Possible match found for your {new_electronic.get_item_type_display().lower()} {el_display} "{new_electronic.title}" — {msg_suffix}'
+            )
+            Notification.objects.create(
+                user=cand.user, match=match2,
+                message=f'Possible match found for your {cand.get_item_type_display().lower()} {el_display} "{cand.title}" — {msg_suffix}'
+            )
+
+            print("=" * 50)
+            print(f"!!! ELECTRONIC MATCH DETECTED !!! [Type: {match_type.upper()} | Score: {score:.2f}]")
+            print(f"-> {new_electronic.user.username}: '{new_electronic.title}'")
+            print(f"-> {cand.user.username}: '{cand.title}'")
+            print("=" * 50)
+
+

@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuthScreen from './src/screens/auth/AuthScreen';
 import HomeScreen from './src/screens/main/HomeScreen';
 import AddItemScreen from './src/screens/items/AddItemScreen';
+import AddElectronicScreen from './src/screens/items/AddElectronicScreen';
 import ItemDetailScreen from './src/screens/items/ItemDetailScreen';
 import ClaimItemScreen from './src/screens/claims/ClaimItemScreen';
 import ProfileScreen from './src/screens/main/ProfileScreen';
@@ -37,6 +38,7 @@ export default function App() {
         <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Findly' }} />
         <Stack.Screen name="AddItem" component={AddItemScreen} options={{ title: 'Report Item' }} />
+        <Stack.Screen name="AddElectronic" component={AddElectronicScreen} options={{ title: 'Report Electronic' }} />
         <Stack.Screen name="ItemDetail" component={ItemDetailScreen} options={{ title: 'Item Details' }} />
         <Stack.Screen name="ClaimItem" component={ClaimItemScreen} options={{ title: 'Claim Item' }} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'My Profile' }} />

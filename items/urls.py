@@ -9,10 +9,13 @@ from .views import (
     AdminKYCListView, AdminKYCReviewView, AdminItemSetStatusView,
     ClaimSubmitView, MyClaimsView,
     AdminClaimListView, AdminClaimReviewView,
+    LostElectronicViewSet, FoundElectronicViewSet,
 )
 
 router = DefaultRouter()
 router.register(r'items', ItemViewSet)
+router.register(r'electronics/lost', LostElectronicViewSet, basename='lost-electronic')
+router.register(r'electronics/found', FoundElectronicViewSet, basename='found-electronic')
 
 urlpatterns = [
     path('auth/register/', RegisterView.as_view(), name='register'),

@@ -46,6 +46,7 @@ from django.utils import timezone
 from .models import (
     Item, Match, Notification, KYCSubmission, UserProfile,
     ItemVerificationDetail, ClaimRequest, ClaimAnswer,
+    LostElectronic, FoundElectronic,
 )
 from .serializers import (
     ItemSerializer, RegisterSerializer, UserSerializer, MatchSerializer,
@@ -54,8 +55,9 @@ from .serializers import (
     VerificationDetailSerializer, VerificationHintSerializer,
     ClaimRequestSerializer, ClaimAnswerSerializer, AdminClaimSerializer,
     CustomTokenObtainPairSerializer,
+    LostElectronicSerializer, FoundElectronicSerializer,
 )
-from services.matching_service import process_item_image, find_matches
+from services.matching_service import process_item_image, find_matches, find_electronic_matches
 
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
@@ -128,6 +130,49 @@ class ItemViewSet(viewsets.ModelViewSet):
         matches_qs = Match.objects.filter(item=item).order_by('-score')
         serializer = MatchSerializer(matches_qs, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], url_path='matches/(?P<match_pk>[^/.]+)/reject')
+    def reject_match(self, request, pk=None, match_pk=None):
+        try:
+            match = Match.objects.get(pk=match_pk, item__user=request.user)
+            match.status = 'rejected'
+            match.save()
+
+            # Also update reciprocal match
+            Match.objects.filter(
+                item=match.matched_item,
+                matched_item=match.item
+            ).update(status='rejected')
+
+            return Response({'status': 'Match rejected successfully'})
+        except Match.DoesNotExist:
+            return Response({'error': 'Match not found'}, status=404)
+
+    @action(detail=True, methods=['post'], url_path='matches/(?P<match_pk>[^/.]+)/report_suspicious')
+    def report_suspicious(self, request, pk=None, match_pk=None):
+        try:
+            match = Match.objects.get(pk=match_pk, item__user=request.user)
+            matched_item = match.matched_item
+
+            # Flag the found phone as suspicious if it is FoundPhone
+            if hasattr(matched_item, 'foundphone'):
+                found_phone = matched_item.foundphone
+                found_phone.is_suspicious = True
+                found_phone.save()
+
+            match.status = 'rejected'
+            match.save()
+
+            # Reciprocal match
+            Match.objects.filter(
+                item=match.matched_item,
+                matched_item=match.item
+            ).update(status='rejected')
+
+            return Response({'status': 'Match reported as suspicious and rejected'})
+        except Match.DoesNotExist:
+            return Response({'error': 'Match not found'}, status=404)
+
 
     @action(detail=True, methods=['post'])
     def add_verification_details(self, request, pk=None):
@@ -481,3 +526,55 @@ class AdminClaimReviewView(APIView):
             )
 
         return Response({'status': f'Claim {new_status.lower()}', 'claim_status': new_status})
+
+
+# ── Electronic Views ──────────────────────────────────────────────────────────
+
+class LostElectronicViewSet(viewsets.ModelViewSet):
+    """CRUD for LostElectronic reports. Auto-runs image processing + electronic matching on create."""
+    serializer_class = LostElectronicSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_queryset(self):
+        return LostElectronic.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        electronic = serializer.save(user=self.request.user)
+        process_item_image(electronic)
+        find_electronic_matches(electronic)
+
+    @action(detail=False, methods=['get'])
+    def my_matches(self, request):
+        matches_qs = Match.objects.filter(
+            item__user=request.user,
+            item__category='Electronics'
+        ).order_by('-score')
+        serializer = MatchSerializer(matches_qs, many=True)
+        return Response(serializer.data)
+
+
+class FoundElectronicViewSet(viewsets.ModelViewSet):
+    """CRUD for FoundElectronic reports. Auto-runs image processing + electronic matching on create."""
+    serializer_class = FoundElectronicSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_queryset(self):
+        return FoundElectronic.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        electronic = serializer.save(user=self.request.user)
+        process_item_image(electronic)
+        find_electronic_matches(electronic)
+
+    @action(detail=False, methods=['get'])
+    def my_matches(self, request):
+        matches_qs = Match.objects.filter(
+            item__user=request.user,
+            item__category='Electronics'
+        ).order_by('-score')
+        serializer = MatchSerializer(matches_qs, many=True)
+        return Response(serializer.data)
+
+
