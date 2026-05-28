@@ -1,3 +1,5 @@
+import math
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -203,6 +205,37 @@ class ClaimAnswer(models.Model):
 
     def __str__(self):
         return f"{'YES' if self.answer else 'NO'} — {self.verification_detail.detail_hint}"
+
+
+class MatchingConfiguration(models.Model):
+    color_weight = models.FloatField(default=0.25, help_text="Weight for color similarity (0.0 to 1.0)")
+    label_weight = models.FloatField(default=0.35, help_text="Weight for MobileNetV2 label similarity (0.0 to 1.0)")
+    location_weight = models.FloatField(default=0.20, help_text="Weight for location proximity similarity (0.0 to 1.0)")
+    text_weight = models.FloatField(default=0.20, help_text="Weight for title & description text similarity (0.0 to 1.0)")
+    threshold = models.FloatField(default=0.70, help_text="Minimum aggregate score threshold (0.0 to 1.0) to register a match")
+
+    class Meta:
+        verbose_name = "Matching Configuration"
+        verbose_name_plural = "Matching Configurations"
+
+    def clean(self):
+        total_weight = self.color_weight + self.label_weight + self.location_weight + self.text_weight
+        if not math.isclose(total_weight, 1.0, rel_tol=1e-5):
+            raise ValidationError(f"The sum of all weights must be exactly 1.0 (currently {total_weight}).")
+        if not (0.0 <= self.threshold <= 1.0):
+            raise ValidationError("Threshold must be between 0.0 and 1.0.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_config(cls):
+        config, created = cls.objects.get_or_create(id=1)
+        return config
+
+    def __str__(self):
+        return f"Weights: Color={self.color_weight}, Label={self.label_weight}, Loc={self.location_weight}, Text={self.text_weight} | Threshold={self.threshold}"
 
 
 # ── Signal: auto-create UserProfile when a new User is created ────────────────

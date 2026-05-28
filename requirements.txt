@@ -11,3 +11,4 @@ pillow==12.1.1
 python-dotenv==1.2.2
 rembg==2.0.73
 tensorflow==2.21.0
+django-unfold==0.94.0

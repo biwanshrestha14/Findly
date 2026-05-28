@@ -184,10 +184,7 @@ def compute_match_score(item1, item2):
     """
     Compute aggregate match score based on individual feature similarities.
     Weight distribution:
-      - color: 0.25
-      - labels: 0.35
-      - location: 0.20
-      - text: 0.20
+      - Retrieved dynamically from MatchingConfiguration (defaults: color 25%, labels 35%, location 20%, text 20%)
     """
     # Enforce category constraint and opposite item type (Lost vs. Found)
     if item1.category != item2.category:
@@ -195,12 +192,18 @@ def compute_match_score(item1, item2):
     if item1.item_type == item2.item_type:
         return 0.0
 
+    from items.models import MatchingConfiguration
+    config = MatchingConfiguration.get_config()
+
     s_color = color_similarity(item1, item2)
     s_labels = label_similarity(item1, item2)
     s_loc = location_similarity(item1, item2)
     s_text = text_similarity(item1, item2)
 
-    score = 0.25 * s_color + 0.35 * s_labels + 0.20 * s_loc + 0.20 * s_text
+    score = (config.color_weight * s_color +
+             config.label_weight * s_labels +
+             config.location_weight * s_loc +
+             config.text_weight * s_text)
     return score, s_color, s_labels, s_loc, s_text
 
 def find_matches(new_item):
@@ -217,8 +220,9 @@ def find_matches(new_item):
         status='ACTIVE'
     )
 
-    # Import Notification here to avoid circular imports
-    from items.models import Notification
+    # Import Notification and MatchingConfiguration here to avoid circular imports
+    from items.models import Notification, MatchingConfiguration
+    config = MatchingConfiguration.get_config()
 
     for cand in candidates:
         score_data = compute_match_score(new_item, cand)
@@ -227,7 +231,7 @@ def find_matches(new_item):
         else:
             score, c_score, l_score, loc_score, t_score = score_data, 0, 0, 0, 0
 
-        if score >= 0.70:  # Threshold specified in the system roles
+        if score >= config.threshold:  # Dynamic threshold from admin settings
             match1 = Match.objects.create(item=new_item, matched_item=cand, score=score, color_score=c_score, label_score=l_score, location_score=loc_score, text_score=t_score)
             match2 = Match.objects.create(item=cand, matched_item=new_item, score=score, color_score=c_score, label_score=l_score, location_score=loc_score, text_score=t_score)
             

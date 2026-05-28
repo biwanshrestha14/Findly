@@ -37,6 +37,9 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -189,4 +192,14 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'refresh-token',
     'JWT_AUTH_HTTPONLY': False,
     'TOKEN_MODEL': None,  # We use JWT, not DRF token auth
+}
+
+# Unfold Premium Admin Styling Customization
+UNFOLD = {
+    "SITE_TITLE": "Findly Admin",
+    "SITE_HEADER": "Findly Admin",
+    "SITE_SUBHEADER": "Lost & Found Matching Portal",
+    "SITE_SYMBOL": "share",  # Material symbols icon name
+    "SHOW_HISTORY": True,
+    "SHOW_SIDEBAR_FILTER": True,
 }

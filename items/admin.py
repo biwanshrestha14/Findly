@@ -1,21 +1,22 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils import timezone
+from unfold.admin import ModelAdmin, TabularInline
 from .models import (
     Item, Match, Notification, KYCSubmission, UserProfile,
-    ItemVerificationDetail, ClaimRequest, ClaimAnswer,
+    ItemVerificationDetail, ClaimRequest, ClaimAnswer, MatchingConfiguration,
 )
 
 
 # ── Inlines ───────────────────────────────────────────────────────────────────
 
-class VerificationDetailInline(admin.TabularInline):
+class VerificationDetailInline(TabularInline):
     model = ItemVerificationDetail
     extra = 0
     fields = ('order', 'detail_text', 'detail_hint')
 
 
-class ClaimAnswerInline(admin.TabularInline):
+class ClaimAnswerInline(TabularInline):
     model = ClaimAnswer
     extra = 0
     readonly_fields = ('verification_detail', 'detail_text_display', 'answer')
@@ -29,7 +30,7 @@ class ClaimAnswerInline(admin.TabularInline):
 # ── Item Admin ────────────────────────────────────────────────────────────────
 
 @admin.register(Item)
-class ItemAdmin(admin.ModelAdmin):
+class ItemAdmin(ModelAdmin):
     list_display = ('title', 'item_type', 'category', 'status', 'user', 'created_at')
     list_filter = ('status', 'item_type', 'category')
     search_fields = ('title', 'description')
@@ -47,7 +48,7 @@ class ItemAdmin(admin.ModelAdmin):
 # ── Match Admin ───────────────────────────────────────────────────────────────
 
 @admin.register(Match)
-class MatchAdmin(admin.ModelAdmin):
+class MatchAdmin(ModelAdmin):
     list_display = ('item', 'matched_item', 'score', 'status', 'created_at')
     list_filter = ('status',)
     search_fields = ('item__title', 'matched_item__title')
@@ -57,7 +58,7 @@ class MatchAdmin(admin.ModelAdmin):
 # ── Notification Admin ────────────────────────────────────────────────────────
 
 @admin.register(Notification)
-class NotificationAdmin(admin.ModelAdmin):
+class NotificationAdmin(ModelAdmin):
     list_display = ('user', 'message_short', 'is_read', 'created_at')
     list_filter = ('is_read',)
     search_fields = ('user__username', 'message')
@@ -71,7 +72,7 @@ class NotificationAdmin(admin.ModelAdmin):
 # ── KYC Submission Admin ──────────────────────────────────────────────────────
 
 @admin.register(KYCSubmission)
-class KYCSubmissionAdmin(admin.ModelAdmin):
+class KYCSubmissionAdmin(ModelAdmin):
     list_display = ('user', 'document_type', 'kyc_status', 'submitted_at', 'reviewed_at')
     list_filter = ('kyc_status', 'document_type')
     search_fields = ('user__username', 'email')
@@ -127,7 +128,7 @@ class KYCSubmissionAdmin(admin.ModelAdmin):
 # ── Claim Request Admin ───────────────────────────────────────────────────────
 
 @admin.register(ClaimRequest)
-class ClaimRequestAdmin(admin.ModelAdmin):
+class ClaimRequestAdmin(ModelAdmin):
     list_display = ('claimant', 'status', 'reviewed_at', 'admin_reviewed_by', 'created_at')
     list_filter = ('status',)
     search_fields = ('claimant__username',)
@@ -212,13 +213,26 @@ class ClaimRequestAdmin(admin.ModelAdmin):
 # ── Other ─────────────────────────────────────────────────────────────────────
 
 @admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(ModelAdmin):
     list_display = ('user', 'full_name', 'phone_number')
     search_fields = ('user__username', 'full_name')
     list_per_page = 25
 
 @admin.register(ItemVerificationDetail)
-class ItemVerificationDetailAdmin(admin.ModelAdmin):
+class ItemVerificationDetailAdmin(ModelAdmin):
     list_display = ('item', 'order', 'detail_hint', 'created_at')
     search_fields = ('item__title', 'detail_text')
     list_per_page = 25
+
+
+@admin.register(MatchingConfiguration)
+class MatchingConfigurationAdmin(ModelAdmin):
+    list_display = ('color_weight', 'label_weight', 'location_weight', 'text_weight', 'threshold')
+    
+    def has_add_permission(self, request):
+        if MatchingConfiguration.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
