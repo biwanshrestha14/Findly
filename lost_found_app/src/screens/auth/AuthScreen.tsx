@@ -7,15 +7,29 @@ import {
     Alert, KeyboardAvoidingView, Platform,
     StyleSheet,
     Text, TextInput, TouchableOpacity,
-    View,
+    View, ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { authApi, MEDIA_BASE } from '../../api';
+import FindlyLogo from '../../components/FindlyLogo';
 
 WebBrowser.maybeCompleteAuthSession();
 
 // ─── Google OAuth config ──────────────────────────────────────────────────────
 const BACKEND_URL = MEDIA_BASE;
+
+const COLORS = {
+    primary: '#0F6E56',
+    primaryLight: '#E1F5EE',
+    bg: '#F8F7F2',
+    card: '#FFFFFF',
+    text: '#1A1A1A',
+    gray: '#6B6B6B',
+    lightGray: '#E5E5E0',
+    accent: '#3498db',
+    white: '#ffffff',
+};
 
 export default function AuthScreen({ navigation }: any) {
     const [isLogin, setIsLogin] = useState(true);
@@ -110,17 +124,15 @@ export default function AuthScreen({ navigation }: any) {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            {/* Header */}
-            <View style={styles.header}>
-                <View style={styles.iconPlaceholder}>
-                    <Ionicons name="search-outline" size={40} color="#fff" />
-                </View>
+            {/* Gradient Header with Logo */}
+            <LinearGradient colors={['#0F6E56', '#128C7E', '#17a589']} style={styles.header}>
+                <FindlyLogo size={80} />
                 <Text style={styles.appName}>Findly</Text>
                 <Text style={styles.tagline}>Smart Lost & Found</Text>
-            </View>
+            </LinearGradient>
 
             {/* Bottom Sheet */}
-            <View style={styles.bottomSheet}>
+            <ScrollView style={styles.bottomSheet} contentContainerStyle={styles.bottomSheetContent} keyboardShouldPersistTaps="handled">
 
                 {/* ── Google Sign-In Button ── */}
                 <TouchableOpacity
@@ -168,30 +180,37 @@ export default function AuthScreen({ navigation }: any) {
                         {isLogin ? 'Welcome back!' : 'Create an account'}
                     </Text>
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Username"
-                        value={username}
-                        onChangeText={setUsername}
-                        autoCapitalize="none"
-                        placeholderTextColor="#a4b0be"
-                    />
-
-                    {!isLogin && (
+                    <View style={styles.inputWrapper}>
+                        <Ionicons name="person-outline" size={18} color={COLORS.gray} style={styles.inputIcon} />
                         <TextInput
                             style={styles.input}
-                            placeholder="Email"
-                            value={email}
-                            onChangeText={setEmail}
+                            placeholder="Username"
+                            value={username}
+                            onChangeText={setUsername}
                             autoCapitalize="none"
-                            keyboardType="email-address"
                             placeholderTextColor="#a4b0be"
                         />
+                    </View>
+
+                    {!isLogin && (
+                        <View style={styles.inputWrapper}>
+                            <Ionicons name="mail-outline" size={18} color={COLORS.gray} style={styles.inputIcon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Email"
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                                placeholderTextColor="#a4b0be"
+                            />
+                        </View>
                     )}
 
-                    <View style={styles.passwordContainer}>
+                    <View style={styles.inputWrapper}>
+                        <Ionicons name="lock-closed-outline" size={18} color={COLORS.gray} style={styles.inputIcon} />
                         <TextInput
-                            style={styles.passwordInput}
+                            style={[styles.input, { flex: 1 }]}
                             placeholder="Password"
                             value={password}
                             onChangeText={setPassword}
@@ -202,113 +221,95 @@ export default function AuthScreen({ navigation }: any) {
                             style={styles.eyeButton}
                             onPress={() => setShowPassword(!showPassword)}
                         >
-                            <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color="#a4b0be" />
+                            <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="#a4b0be" />
                         </TouchableOpacity>
                     </View>
 
                     <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
-                        <Text style={styles.submitText}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
+                        <LinearGradient colors={['#0F6E56', '#128C7E']} style={styles.submitGradient}>
+                            <Text style={styles.submitText}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
+                        </LinearGradient>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#2f3640' },
-    header: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#2f3640' },
-    iconPlaceholder: {
-        width: 80, height: 80, borderRadius: 40, backgroundColor: '#3498db',
-        justifyContent: 'center', alignItems: 'center', marginBottom: 20,
-        elevation: 10, shadowColor: '#3498db', shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.5, shadowRadius: 10,
-    },
-    iconText: { fontSize: 40 },
-    appName: { fontSize: 42, fontWeight: '900', color: '#f5f6fa', letterSpacing: 2 },
-    tagline: { fontSize: 16, color: '#a4b0be', marginTop: 5, fontWeight: '500', letterSpacing: 1 },
+    container: { flex: 1, backgroundColor: '#0F6E56' },
+    header: { paddingTop: 60, paddingBottom: 35, alignItems: 'center', justifyContent: 'center' },
+    appName: { fontSize: 36, fontWeight: '900', color: '#ffffff', letterSpacing: 2, marginTop: 12 },
+    tagline: { fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: 4, fontWeight: '600', letterSpacing: 1 },
 
     bottomSheet: {
-        backgroundColor: '#f1f2f6',
-        borderTopLeftRadius: 35, borderTopRightRadius: 35,
-        padding: 30, paddingBottom: 50,
-        elevation: 20, shadowColor: '#000',
-        shadowOffset: { width: 0, height: -5 }, shadowOpacity: 0.2, shadowRadius: 15,
+        flex: 1,
+        backgroundColor: COLORS.bg,
+        borderTopLeftRadius: 30, borderTopRightRadius: 30,
+    },
+    bottomSheetContent: {
+        padding: 28, paddingBottom: 50,
     },
 
     // Google button
     googleBtn: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
         backgroundColor: '#4285F4',
-        paddingVertical: 16, borderRadius: 15,
-        elevation: 4, shadowColor: '#4285F4',
-        shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8,
+        paddingVertical: 15, borderRadius: 14,
+        elevation: 3, shadowColor: '#4285F4',
+        shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 6,
         marginBottom: 20,
     },
     googleIcon: {
-        fontSize: 18, fontWeight: '900',
+        fontSize: 16, fontWeight: '900',
         backgroundColor: '#fff', color: '#4285F4',
-        width: 26, height: 26, borderRadius: 13,
-        textAlign: 'center', lineHeight: 26,
+        width: 24, height: 24, borderRadius: 12,
+        textAlign: 'center', lineHeight: 24,
         marginRight: 12,
     },
-    googleBtnText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.5 },
+    googleBtnText: { color: '#fff', fontSize: 15, fontWeight: '700', letterSpacing: 0.3 },
 
     // Divider
     divider: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-    dividerLine: { flex: 1, height: 1, backgroundColor: '#dcdde1' },
-    dividerText: { marginHorizontal: 12, color: '#7f8fa6', fontSize: 14, fontWeight: '600' },
+    dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.lightGray },
+    dividerText: { marginHorizontal: 12, color: COLORS.gray, fontSize: 13, fontWeight: '600' },
 
     // Tabs
     tabContainer: {
-        flexDirection: 'row', backgroundColor: '#dcdde1',
-        borderRadius: 25, padding: 5, marginBottom: 25,
+        flexDirection: 'row', backgroundColor: '#EBEBE6',
+        borderRadius: 22, padding: 4, marginBottom: 24,
     },
-    tab: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 20 },
+    tab: { flex: 1, paddingVertical: 11, alignItems: 'center', borderRadius: 18 },
     activeTab: {
-        backgroundColor: '#fff', elevation: 2, shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2,
+        backgroundColor: COLORS.white, elevation: 2, shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 3,
     },
-    tabText: { fontSize: 16, fontWeight: 'bold', color: '#7f8fa6' },
-    activeTabText: { color: '#2f3640' },
+    tabText: { fontSize: 15, fontWeight: 'bold', color: COLORS.gray },
+    activeTabText: { color: COLORS.primary },
 
     // Form
-    form: { marginTop: 10 },
-    welcomeText: { fontSize: 24, fontWeight: 'bold', color: '#2f3640', marginBottom: 25 },
+    form: { marginTop: 4 },
+    welcomeText: { fontSize: 22, fontWeight: '800', color: COLORS.text, marginBottom: 22 },
+    inputWrapper: {
+        flexDirection: 'row', alignItems: 'center',
+        backgroundColor: COLORS.white, paddingHorizontal: 14,
+        borderRadius: 14, marginBottom: 14,
+        borderWidth: 1, borderColor: COLORS.lightGray,
+    },
+    inputIcon: { marginRight: 10 },
     input: {
-        backgroundColor: '#fff', padding: 18, borderRadius: 15,
-        marginBottom: 15, fontSize: 16, color: '#2f3640',
-        borderWidth: 1, borderColor: '#dcdde1',
-    },
-    passwordContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 15,
-        marginBottom: 15,
-        borderWidth: 1,
-        borderColor: '#dcdde1',
-    },
-    passwordInput: {
-        flex: 1,
-        padding: 18,
-        fontSize: 16,
-        color: '#2f3640',
+        flex: 1, paddingVertical: 16, fontSize: 15, color: COLORS.text, fontWeight: '500',
     },
     eyeButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    eyeText: {
-        fontSize: 22,
+        paddingHorizontal: 6, paddingVertical: 10,
     },
     submitBtn: {
-        backgroundColor: '#3498db', padding: 18, borderRadius: 15,
-        alignItems: 'center', marginTop: 15, elevation: 5,
-        shadowColor: '#3498db', shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4, shadowRadius: 8,
+        borderRadius: 14, overflow: 'hidden', marginTop: 16,
+        elevation: 4, shadowColor: '#0F6E56',
+        shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 6,
     },
-    submitText: { color: '#fff', fontSize: 18, fontWeight: 'bold', letterSpacing: 1 },
+    submitGradient: {
+        paddingVertical: 17, alignItems: 'center', justifyContent: 'center',
+    },
+    submitText: { color: '#fff', fontSize: 17, fontWeight: 'bold', letterSpacing: 0.5 },
 });

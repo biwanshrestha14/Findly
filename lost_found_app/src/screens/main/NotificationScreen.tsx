@@ -3,6 +3,7 @@ import {
     View, Text, FlatList, TouchableOpacity, StyleSheet,
     SafeAreaView, Animated, StatusBar
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { getNotifications, markNotificationRead } from '../../api';
 
 const COLORS = {
@@ -60,7 +61,7 @@ const NotificationItem = ({ item, onPress }: { item: any, onPress: () => void })
                 <View style={styles.cardContent}>
                     <View style={styles.cardHeader}>
                         <View style={styles.iconCircle}>
-                            <Text style={styles.iconText}>✨</Text>
+                            <Ionicons name="sparkles" size={20} color={COLORS.primary} />
                         </View>
                         <Text style={styles.timeAgo}>{timeAgo(item.created_at)}</Text>
                     </View>
@@ -69,7 +70,7 @@ const NotificationItem = ({ item, onPress }: { item: any, onPress: () => void })
                     {confidence && (
                         <View style={styles.confidenceRow}>
                             <View style={styles.confidenceBadge}>
-                                <Text style={styles.confidenceIcon}>🎯</Text>
+                                <Ionicons name="analytics-outline" size={14} color={COLORS.accent} style={{ marginRight: 6 }} />
                                 <Text style={styles.confidenceText}>{confidence} Match</Text>
                             </View>
                         </View>
@@ -78,7 +79,7 @@ const NotificationItem = ({ item, onPress }: { item: any, onPress: () => void })
                     {item.match && (
                         <View style={styles.reviewBtn}>
                             <Text style={styles.reviewBtnText}>Review Details</Text>
-                            <Text style={styles.reviewBtnArrow}>→</Text>
+                            <Ionicons name="chevron-forward" size={18} color={COLORS.primary} />
                         </View>
                     )}
                 </View>
@@ -147,7 +148,7 @@ export default function NotificationScreen({ navigation }: any) {
     const renderEmpty = () => (
         <View style={styles.emptyContainer}>
             <View style={styles.emptyIconContainer}>
-                <Text style={styles.emptyIcon}>✨</Text>
+                <Ionicons name="sparkles" size={32} color={COLORS.primary} />
             </View>
             <Text style={styles.emptyTitle}>You're all caught up!</Text>
             <Text style={styles.emptySubtitle}>
