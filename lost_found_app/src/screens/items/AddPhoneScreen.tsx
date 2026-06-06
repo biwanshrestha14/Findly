@@ -166,7 +166,10 @@ export default function AddPhoneScreen({ route, navigation }: any) {
 
                 const data = await createLostPhone(formData);
                 Alert.alert('Success', 'Lost phone reported successfully!');
-                navigation.navigate('Home');
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }],
+                });
             } else {
                 formData.append('imei_source', imeiSource);
                 formData.append('is_device_locked', String(isDeviceLocked));
@@ -187,7 +190,7 @@ export default function AddPhoneScreen({ route, navigation }: any) {
                 const data = await createFoundPhone(formData);
                 Alert.alert('Phone Reported!', 'Now add verification details to help verify the owner.', [
                     { text: 'Add Details', onPress: () => navigation.replace('VerificationSetup', { itemId: data.id }) },
-                    { text: 'Skip', style: 'cancel', onPress: () => navigation.navigate('Home') },
+                    { text: 'Skip', style: 'cancel', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Home' }] }) },
                 ]);
             }
         } catch (e) {

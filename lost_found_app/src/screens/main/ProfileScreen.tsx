@@ -6,7 +6,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { getProfile, updateProfile, getKYCStatus, MEDIA_BASE, checkAdmin } from '../../api';
+import { getProfile, updateProfile, getKYCStatus, MEDIA_BASE } from '../../api';
 
 const COLORS = {
     primary: '#0F6E56',
@@ -33,7 +33,6 @@ export default function ProfileScreen({ navigation }: any) {
     const [address, setAddress] = useState('');
     const [bio, setBio] = useState('');
     const [newPhoto, setNewPhoto] = useState<any>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
 
     const fetchProfile = useCallback(async () => {
         setLoading(true);
@@ -47,11 +46,6 @@ export default function ProfileScreen({ navigation }: any) {
         } catch (e) {
             console.error('Failed to load profile:', e);
         }
-        // Check admin status
-        try {
-            const adminData = await checkAdmin();
-            setIsAdmin(adminData.is_admin);
-        } catch (_) {}
         setLoading(false);
     }, []);
 
@@ -268,18 +262,6 @@ export default function ProfileScreen({ navigation }: any) {
                                 <Text style={styles.logoutBtnText}>Logout</Text>
                             </TouchableOpacity>
                         </View>
-                    )}
-
-                    {isAdmin && (
-                        <TouchableOpacity
-                            style={styles.adminBtn}
-                            onPress={() => navigation.navigate('Admin')}
-                        >
-                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                                <Ionicons name="shield-checkmark" size={18} color="#FFF" style={{ marginRight: 8 }} />
-                                <Text style={styles.adminBtnText}>Admin Panel</Text>
-                            </View>
-                        </TouchableOpacity>
                     )}
                 </View>
             </ScrollView>

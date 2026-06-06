@@ -114,11 +114,14 @@ export default function AddItemScreen({ route, navigation }: any) {
                 // Redirect to verification setup for new found items
                 Alert.alert('Item Reported!', 'Now add verification details to help verify the owner.', [
                     { text: 'Add Details', onPress: () => navigation.replace('VerificationSetup', { itemId: data.id }) },
-                    { text: 'Skip', style: 'cancel', onPress: () => navigation.navigate('Home') },
+                    { text: 'Skip', style: 'cancel', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Home' }] }) },
                 ]);
             } else {
                 Alert.alert('Success', editItem ? 'Item updated!' : 'Item reported successfully!');
-                navigation.navigate('Home');
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }],
+                });
             }
         } catch (e) {
             console.error(e);

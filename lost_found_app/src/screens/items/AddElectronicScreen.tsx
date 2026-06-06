@@ -145,7 +145,10 @@ export default function AddElectronicScreen({ route, navigation }: any) {
                 appendImageToForm(formData, 'image', image);
                 await createLostElectronic(formData);
                 Alert.alert('Success', `Lost ${config.label} reported successfully!`);
-                navigation.navigate('Home');
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }],
+                });
             } else {
                 formData.append('imei_or_serial_source', identifierSource);
                 formData.append('is_device_locked', String(isDeviceLocked));
@@ -155,7 +158,7 @@ export default function AddElectronicScreen({ route, navigation }: any) {
                 const data = await createFoundElectronic(formData);
                 Alert.alert('Reported!', 'Now add verification details to help verify the owner.', [
                     { text: 'Add Details', onPress: () => navigation.replace('VerificationSetup', { itemId: data.id }) },
-                    { text: 'Skip', style: 'cancel', onPress: () => navigation.navigate('Home') },
+                    { text: 'Skip', style: 'cancel', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Home' }] }) },
                 ]);
             }
         } catch (e) {

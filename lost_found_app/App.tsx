@@ -15,7 +15,6 @@ import KYCScreen from './src/screens/admin/KYCScreen';
 import VerificationSetupScreen from './src/screens/admin/VerificationSetupScreen';
 import ClaimVerificationScreen from './src/screens/claims/ClaimVerificationScreen';
 import ClaimStatusScreen from './src/screens/claims/ClaimStatusScreen';
-import AdminScreen from './src/screens/admin/AdminScreen';
 import SplashLoading from './src/screens/SplashLoading';
 
 const Stack = createNativeStackNavigator();
@@ -52,7 +51,6 @@ export default function App() {
         <Stack.Screen name="VerificationSetup" component={VerificationSetupScreen} options={{ title: 'Verification Details' }} />
         <Stack.Screen name="ClaimVerification" component={ClaimVerificationScreen} options={{ title: 'Verify Claim' }} />
         <Stack.Screen name="ClaimStatus" component={ClaimStatusScreen} options={{ title: 'Claim Status' }} />
-        <Stack.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin Panel' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
