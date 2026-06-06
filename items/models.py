@@ -49,6 +49,42 @@ class Item(models.Model):
         return f"{self.get_item_type_display()} - {self.title}"
 
 
+class LostItemManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(item_type='LOST')
+
+
+class LostItem(Item):
+    objects = LostItemManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = "Lost Item"
+        verbose_name_plural = "Lost Items"
+
+    def save(self, *args, **kwargs):
+        self.item_type = 'LOST'
+        super().save(*args, **kwargs)
+
+
+class FoundItemManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(item_type='FOUND')
+
+
+class FoundItem(Item):
+    objects = FoundItemManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = "Found Item"
+        verbose_name_plural = "Found Items"
+
+    def save(self, *args, **kwargs):
+        self.item_type = 'FOUND'
+        super().save(*args, **kwargs)
+
+
 class Match(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),

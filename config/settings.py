@@ -79,7 +79,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -204,4 +204,8 @@ UNFOLD = {
     "SITE_SYMBOL": "share",  # Material symbols icon name
     "SHOW_HISTORY": True,
     "SHOW_SIDEBAR_FILTER": True,
+    "DASHBOARD_CALLBACK": "items.admin.dashboard_callback",
+    "STYLES": [
+        lambda request: "css/custom_admin.css?v=3",
+    ],
 }

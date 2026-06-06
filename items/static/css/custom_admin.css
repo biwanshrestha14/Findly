@@ -1,0 +1,55 @@
+/* Findly Web Admin Panel - Custom CSS Override */
+
+/* Fix native select element options visibility (highly specific) */
+select option,
+select[name="action"] option,
+.actions select option,
+#changelist-actions select option,
+div.actions select option,
+div#changelist-actions select option {
+    color: #111827 !important; /* Tailwind gray-900 */
+    background-color: #ffffff !important;
+}
+
+/* Dark mode support for native select options */
+.dark select option,
+.dark select[name="action"] option,
+.dark .actions select option,
+.dark #changelist-actions select option,
+.dark div.actions select option,
+.dark div#changelist-actions select option,
+html[class*="dark"] select option,
+html[class*="dark"] select[name="action"] option,
+html[class*="dark"] .actions select option,
+html[class*="dark"] #changelist-actions select option,
+html[class*="dark"] div.actions select option,
+html[class*="dark"] div#changelist-actions select option {
+    color: #f9fafb !important; /* Tailwind gray-50 */
+    background-color: #1f2937 !important; /* Tailwind gray-800 */
+}
+
+/* Premium High-Contrast Run Action Button Styling */
+#changelist-actions button[type="submit"] {
+    background-color: #10b981 !important; /* Vibrant emerald green */
+    color: #ffffff !important;
+    border: 1px solid #059669 !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 1.25rem !important;
+    border-radius: 6px !important;
+    font-size: 0.875rem !important;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2), 0 2px 4px -1px rgba(16, 185, 129, 0.1) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer !important;
+}
+
+#changelist-actions button[type="submit"]:hover {
+    background-color: #059669 !important;
+    border-color: #047857 !important;
+    box-shadow: 0 6px 8px -1px rgba(5, 150, 105, 0.3), 0 4px 6px -1px rgba(5, 150, 105, 0.15) !important;
+    transform: translateY(-1px) !important;
+}
+
+#changelist-actions button[type="submit"]:active {
+    transform: translateY(1px) !important;
+}
+

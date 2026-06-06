@@ -1,0 +1,191 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .findly-dashboard { margin-bottom: 2rem; }
+    .findly-dashboard h1 {
+        font-size: 1.75rem;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        color: #18181b;
+        margin: 0 0 4px 0;
+    }
+    .findly-dashboard .subtitle {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0 0 1.5rem 0;
+    }
+    .findly-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    @media (max-width: 1024px) { .findly-stats-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 640px)  { .findly-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 420px)  { .findly-stats-grid { grid-template-columns: 1fr; } }
+
+    .findly-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        padding: 1.25rem 1.25rem 1.5rem;
+        background: #ffffff;
+        border: 1px solid #e4e4e7;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        transition: box-shadow 0.2s ease, transform 0.15s ease;
+    }
+    .findly-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    .findly-card-inner {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .findly-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .findly-icon-box svg {
+        width: 24px;
+        height: 24px;
+    }
+    .findly-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #71717a;
+        margin: 0 0 4px 0;
+    }
+    .findly-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #18181b;
+        margin: 0;
+        line-height: 1;
+    }
+    .findly-pulse-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        animation: findlyPulse 2s ease-in-out infinite;
+    }
+    @keyframes findlyPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+
+    /* Dark mode support for Unfold */
+    .dark .findly-dashboard h1,
+    html[class*="dark"] .findly-dashboard h1 { color: #fafafa; }
+    .dark .findly-dashboard .subtitle,
+    html[class*="dark"] .findly-dashboard .subtitle { color: #a1a1aa; }
+    .dark .findly-card,
+    html[class*="dark"] .findly-card { background: #18181b; border-color: #27272a; }
+    .dark .findly-label,
+    html[class*="dark"] .findly-label { color: #a1a1aa; }
+    .dark .findly-value,
+    html[class*="dark"] .findly-value { color: #fafafa; }
+</style>
+
+<div class="findly-dashboard">
+    <h1>Findly Dashboard</h1>
+    <p class="subtitle">Real-time Lost &amp; Found AI-matching insights, security compliance, and claim resolution metrics.</p>
+
+    <div class="findly-stats-grid">
+        <!-- Total Lost Items -->
+        <div class="findly-card">
+            <div class="findly-card-inner">
+                <div class="findly-icon-box" style="background: #fff7ed;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ea580c">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="findly-label">Total Lost Items</p>
+                    <p class="findly-value">{{ total_lost_items }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Found Items -->
+        <div class="findly-card">
+            <div class="findly-card-inner">
+                <div class="findly-icon-box" style="background: #eff6ff;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="findly-label">Total Found Items</p>
+                    <p class="findly-value">{{ total_found_items }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending KYC -->
+        <div class="findly-card">
+            <div class="findly-card-inner">
+                <div class="findly-icon-box" style="background: #fffbeb;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#d97706">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="findly-label">Pending KYC</p>
+                    <p class="findly-value" {% if pending_kyc_reviews > 0 %}style="color: #d97706;"{% endif %}>{{ pending_kyc_reviews }}</p>
+                </div>
+            </div>
+            {% if pending_kyc_reviews > 0 %}
+            <div class="findly-pulse-bar" style="background: #f59e0b;"></div>
+            {% endif %}
+        </div>
+
+        <!-- Pending Claims -->
+        <div class="findly-card">
+            <div class="findly-card-inner">
+                <div class="findly-icon-box" style="background: #fef2f2;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#dc2626">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="findly-label">Pending Claims</p>
+                    <p class="findly-value" {% if pending_claims > 0 %}style="color: #dc2626;"{% endif %}>{{ pending_claims }}</p>
+                </div>
+            </div>
+            {% if pending_claims > 0 %}
+            <div class="findly-pulse-bar" style="background: #ef4444;"></div>
+            {% endif %}
+        </div>
+
+        <!-- Matches Today -->
+        <div class="findly-card">
+            <div class="findly-card-inner">
+                <div class="findly-icon-box" style="background: #f0fdf4;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#16a34a">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 21l-.813-5.096L3 15l5.096-.813L9 9l.813 5.096L15 15l-5.096.813ZM19.071 5.929 18.5 9.5l-.571-3.571L14.357 5.357 17.929 4.786 18.5 1.214l.571 3.571 3.571.571-3.571.571Z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="findly-label">Matches Today</p>
+                    <p class="findly-value">{{ total_matches_today }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ block.super }}
+{% endblock %}

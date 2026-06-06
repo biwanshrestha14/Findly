@@ -78,7 +78,7 @@ class CheckAdminView(APIView):
 
     def get(self, request):
         return Response({
-            'is_admin': request.user.is_staff or request.user.is_superuser,
+            'is_admin': False,
             'username': request.user.username,
         })
 

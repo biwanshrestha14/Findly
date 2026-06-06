@@ -38,12 +38,7 @@ urlpatterns = [
     path('claims/submit/', ClaimSubmitView.as_view(), name='claim-submit'),
     path('claims/my_claims/', MyClaimsView.as_view(), name='my-claims'),
 
-    # Admin endpoints
-    path('admin/kyc/', AdminKYCListView.as_view(), name='admin-kyc-list'),
-    path('admin/kyc/<int:pk>/review/', AdminKYCReviewView.as_view(), name='admin-kyc-review'),
-    path('admin/items/<int:pk>/set_status/', AdminItemSetStatusView.as_view(), name='admin-item-status'),
-    path('admin/claims/', AdminClaimListView.as_view(), name='admin-claim-list'),
-    path('admin/claims/<int:pk>/review/', AdminClaimReviewView.as_view(), name='admin-claim-review'),
+
 
     # Router (items CRUD + custom actions)
     path('', include(router.urls)),
